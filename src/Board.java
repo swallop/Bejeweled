@@ -16,8 +16,7 @@ public class Board {
     private int click = 0;
     private int x0, y0, x, y;
     private boolean isSwap = false;
-    private boolean isMoving = false;
-
+    private boolean isMoving;
 
     // Constructor initializes the grid and assets
     public Board(Assets assets) {
@@ -88,10 +87,10 @@ public class Board {
     }
 
     // Updates the game state (matches and animations)
-    public void update() {
+    public int update() {
         findMatches();
         animateMovement();
-        processMatches();
+        return processMatches();
     }
 
     // Finds matches of three or more gems in a row or column
@@ -99,7 +98,7 @@ public class Board {
         for (int i = 1; i <= SIZE; i++) {
             for (int j = 1; j <= SIZE; j++) {
                 Piece p = grid[i][j];
-                p.match = 0 ;
+                p.match = 0;
                 if (p.getKind() == grid[i + 1][j].getKind() && p.getKind() == grid[i - 1][j].getKind()) {
                     grid[i - 1][j].match++;
                     p.match++;
@@ -115,7 +114,7 @@ public class Board {
     }
 
     // Animates piece movement towards their target positions
-    private void animateMovement(){
+    private void animateMovement() {
         int speedSwapAnimation = 4;
         isMoving = false;
         for (int i = 1; i <= SIZE; i++) {
@@ -134,7 +133,7 @@ public class Board {
     }
 
     // Processes matches, removes matched gems, and refills the board
-    private void processMatches() {
+    private int processMatches() {
         int score = 0;
         for (int i = 1; i <= SIZE; i++) {
             for (int j = 1; j <= SIZE; j++) {
@@ -174,6 +173,7 @@ public class Board {
                 }
             }
         }
+        return score;
     }
 
     // Draws the board and gems to the provided Graphics2D context
