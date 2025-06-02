@@ -16,7 +16,7 @@ public class GameTimer {
     private double lastSpeedUpTime;
     private boolean isGameOver;
 
-    public GameTimer(){
+    public GameTimer() {
         this.timeRemaining = INITIAL_TIME;
         this.baseSpeed = 1.0;
         this.currentSpeed = baseSpeed;
@@ -57,7 +57,6 @@ public class GameTimer {
         return Color.ORANGE;
     }
 
-
     public void draw(Graphics2D g2) {
         g2.setColor(Color.GRAY);
         g2.fillRect(BAR_X, BAR_Y, BAR_WIDTH, BAR_HEIGHT);
@@ -66,7 +65,6 @@ public class GameTimer {
         int filledWidth = (int) (BAR_WIDTH * timeRatio);
 
         g2.setColor(getBarColor(timeRatio));
-
         g2.fillRect(BAR_X, BAR_Y, filledWidth, BAR_HEIGHT);
         g2.setColor(Color.BLACK);
         g2.drawRect(BAR_X, BAR_Y, BAR_WIDTH, BAR_HEIGHT);
