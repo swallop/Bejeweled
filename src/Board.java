@@ -12,11 +12,12 @@ public class Board {
     private static final int INVALID_KIND = -1;
 
     private final Piece[][] grid;
-    private final Assets assets;
+    private Assets assets;
     private int click = 0;
     private int x0, y0, x, y;
     private boolean isSwap = false;
     private boolean isMoving;
+
 
     // Constructor initializes the grid and assets
     public Board(Assets assets) {
@@ -95,20 +96,72 @@ public class Board {
 
     // Finds matches of three or more gems in a row or column
     private void findMatches() {
+        // Reset matches
         for (int i = 1; i <= SIZE; i++) {
             for (int j = 1; j <= SIZE; j++) {
-                Piece p = grid[i][j];
-                p.match = 0;
-                if (p.getKind() == grid[i + 1][j].getKind() && p.getKind() == grid[i - 1][j].getKind()) {
-                    grid[i - 1][j].match++;
-                    p.match++;
-                    grid[i + 1][j].match++;
+                grid[i][j].match = 0;
+            }
+        }
+
+        if (isSwap) {
+            // Check rows and columns of swapped gems (y0, x0) and (y, x)
+            checkRow(y0);
+            checkRow(y);
+            checkColumn(x0);
+            checkColumn(x);
+        } else {
+            // Full grid scan for cascading matches
+            for (int i = 1; i <= SIZE; i++) {
+                checkRow(i);
+                checkColumn(i);
+            }
+        }
+    }
+
+    private void checkRow(int i) {
+        int start = 1, count = 1;
+        int currentKind = grid[i][1].getKind();
+        for (int j = 2; j <= SIZE; j++) {
+            if (grid[i][j].getKind() == currentKind && currentKind != INVALID_KIND) {
+                count++;
+            } else {
+                if (count >= 3) {
+                    for (int k = start; k < start + count; k++) {
+                        grid[i][k].match = count;
+                    }
                 }
-                if (p.getKind() == grid[i][j + 1].getKind() && p.getKind() == grid[i][j - 1].getKind()) {
-                    grid[i][j - 1].match++;
-                    p.match++;
-                    grid[i][j + 1].match++;
+                start = j;
+                count = 1;
+                currentKind = grid[i][j].getKind();
+            }
+        }
+        if (count >= 3) {
+            for (int k = start; k < start + count; k++) {
+                grid[i][k].match = count;
+            }
+        }
+    }
+
+    private void checkColumn(int j) {
+        int start = 1, count = 1;
+        int currentKind = grid[1][j].getKind();
+        for (int i = 2; i <= SIZE; i++) {
+            if (grid[i][j].getKind() == currentKind && currentKind != INVALID_KIND) {
+                count++;
+            } else {
+                if (count >= 3) {
+                    for (int k = start; k < start + count; k++) {
+                        grid[k][j].match = count;
+                    }
                 }
+                start = i;
+                count = 1;
+                currentKind = grid[i][j].getKind();
+            }
+        }
+        if (count >= 3) {
+            for (int k = start; k < start + count; k++) {
+                grid[k][j].match = count;
             }
         }
     }
@@ -134,7 +187,7 @@ public class Board {
 
     // Processes matches, removes matched gems, and refills the board
     private int processMatches() {
-        int score = 0;
+        int score= 0;
         for (int i = 1; i <= SIZE; i++) {
             for (int j = 1; j <= SIZE; j++) {
                 score += grid[i][j].match;

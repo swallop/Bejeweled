@@ -85,7 +85,7 @@ public class Leaderboard {
 
     public void draw(Graphics2D g2) {
         g2.setColor(Color.WHITE);
-        g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 20));
+        g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 15));
         g2.drawString("Leaderboard", 645, 50);
 
         int y = 80;
@@ -97,7 +97,4 @@ public class Leaderboard {
         }
     }
 
-    public List<ScoreEntry> getScores() {
-        return new ArrayList<>(scores);
-    }
 }

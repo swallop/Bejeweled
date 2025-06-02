@@ -7,7 +7,6 @@ public class Assets {
     // Constants for game dimensions
     public static final int WIDTH = 900;
     public static final int HEIGHT = 563;
-    public static final int TILE_SIZE = 54;
 
     // Image assets for the game
     private BufferedImage background;

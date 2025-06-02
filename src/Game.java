@@ -48,10 +48,12 @@ public class Game extends JPanel implements Runnable {
     }
 
     private void update() {
-        if (timer.isGameOver() && !gameOverHandled) {
-            handleGameOver();
-            gameOverHandled = true;
-            return;
+        if (timer.isGameOver() ) {
+            if (!gameOverHandled) {
+                handleGameOver();
+                gameOverHandled = true;
+                return;
+            }
         }
 
         if (!timer.isGameOver()) {
@@ -70,7 +72,7 @@ public class Game extends JPanel implements Runnable {
 
             // Fix 2: Update score when matches occur
             if (matches > 0) {
-                scoreManager.update(matches);
+                scoreManager.addScore(matches);
             }
         }
     }
@@ -85,7 +87,7 @@ public class Game extends JPanel implements Runnable {
         );
 
         if (playerName == null || playerName.trim().isEmpty()) {
-            playerName = "Anonymous";
+            playerName = "Guest";
         }
 
         // Add score to leaderboard with name
@@ -109,8 +111,7 @@ public class Game extends JPanel implements Runnable {
     private void restartGame() {
         timer.reset();
         scoreManager.reset();
-        board = new Board(assets); // Reset board
-        gameOverHandled = false;
+        run();
     }
 
     private void draw() {
