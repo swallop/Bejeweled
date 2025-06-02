@@ -34,7 +34,7 @@ public class Game extends JPanel implements Runnable {
         keyInput = new KeyHandler(this);
         addKeyListener(keyInput);
         gameState = GameState.STOPPED;
-        add(new ButtonPanel(this), BorderLayout.SOUTH); // MODIFIED: Changed to SOUTH
+        add(new ButtonPanel(this), BorderLayout.SOUTH);
     }
 
     @Override
@@ -101,7 +101,6 @@ public class Game extends JPanel implements Runnable {
         }
 
         int matches = board.update();
-        long currentTime = System.nanoTime();
         double deltaTime = TARGET_FRAME_TIME / 1000.0;
         timer.update(deltaTime, matches);
         if (matches > 0) {
@@ -110,7 +109,6 @@ public class Game extends JPanel implements Runnable {
     }
 
     private void handleGameOver() {
-        // Get player name for leaderboard
         String playerName = JOptionPane.showInputDialog(
                 this,
                 "Game Over! Your score: " + scoreManager.getScore() + "\nEnter your name:",
@@ -122,11 +120,9 @@ public class Game extends JPanel implements Runnable {
             playerName = "Anonymous";
         }
 
-        // Add score to leaderboard with name
         leaderboard.addScore(scoreManager.getScore(), playerName.trim());
         gameState = GameState.STOPPED;
 
-        // Ask if player wants to play again
         int choice = JOptionPane.showConfirmDialog(
                 this,
                 "Would you like to play again?",
@@ -135,7 +131,7 @@ public class Game extends JPanel implements Runnable {
         );
 
         if (choice == JOptionPane.YES_OPTION) {
-            resetGame();
+            startGame(); // Changed from resetGame() to directly start a new game
         } else {
             stop();
         }
@@ -191,6 +187,7 @@ public class Game extends JPanel implements Runnable {
                     Thread.sleep(sleepTime);
                 }
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Restore interrupted status
                 isRunning = false;
             }
         }
@@ -203,6 +200,7 @@ public class Game extends JPanel implements Runnable {
                 gameThread.join();
             }
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             System.err.println("Error stopping game thread: " + e.getMessage());
         }
     }

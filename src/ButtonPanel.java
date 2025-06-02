@@ -49,9 +49,6 @@ public class ButtonPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        // Anti-aliasing for smoother text
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
         // Draw Start button
         g2.setColor(game.getGameState() == Game.GameState.STOPPED || game.getGameState() == Game.GameState.PAUSED ? Color.GREEN : Color.GRAY);
         g2.fillRect(startButtonRect.x, startButtonRect.y, startButtonRect.width, startButtonRect.height);

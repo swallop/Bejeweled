@@ -17,32 +17,61 @@ public class Board {
     private int x0, y0, x, y;
     private boolean isSwap = false;
     private boolean isMoving;
-
+    private Random rand;
 
     // Constructor initializes the grid and assets
     public Board(Assets assets) {
         this.assets = assets;
         this.grid = new Piece[SIZE + 2][SIZE + 2];
+        this.rand = new Random();
         initGrid();
     }
 
     // Initializes the grid with pieces, setting borders to invalid
     private void initGrid() {
-        Random rand = new Random();
         for (int i = 0; i < SIZE + 2; i++) {
             for (int j = 0; j < SIZE + 2; j++) {
                 grid[i][j] = new Piece();
             }
         }
+
+        // Initialize playable area with random gems, avoiding initial matches
         for (int i = 1; i <= SIZE; i++) {
             for (int j = 1; j <= SIZE; j++) {
-                grid[i][j].setKind(rand.nextInt(GEM_TYPES));
+                int gemType;
+                do {
+                    gemType = rand.nextInt(GEM_TYPES);
+                } while (CreateInitialMatch(i, j, gemType));
+                grid[i][j].setKind(gemType);
                 grid[i][j].setRow(i);
                 grid[i][j].setCol(j);
                 grid[i][j].setX(j * TILE_SIZE);
                 grid[i][j].setY(i * TILE_SIZE);
             }
         }
+    }
+
+    // Check if placing a gem would create an initial match
+    //Cancel the matched gem at the first start
+    private boolean CreateInitialMatch(int row, int col, int gemType) {
+        // Check horizontal
+        int horizontalCount = 1;
+        if (col > 1 && grid[row][col-1].getKind() == gemType) {
+            horizontalCount++;
+            if (col > 2 && grid[row][col-2].getKind() == gemType) {
+                horizontalCount++;
+            }
+        }
+
+        // Check vertical
+        int verticalCount = 1;
+        if (row > 1 && grid[row-1][col].getKind() == gemType) {
+            verticalCount++;
+            if (row > 2 && grid[row-2][col].getKind() == gemType) {
+                verticalCount++;
+            }
+        }
+        return horizontalCount >= 3 || verticalCount >= 3;
     }
 
     // Handles mouse input for selecting and swapping pieces
@@ -61,7 +90,7 @@ public class Board {
             } else if (click == 2) {
                 x = posX / TILE_SIZE + 1;
                 y = posY / TILE_SIZE + 1;
-                if (isValidPosition(x, y) && Math.abs(x - x0) + Math.abs(y - y0) == 1) {
+                if (isValidPosition(x, y) && isAdjacentMove(x0, y0, x, y)) {
                     swap(grid[y0][x0], grid[y][x]);
                     isSwap = true;
                 }
@@ -73,6 +102,11 @@ public class Board {
     // Checks if a position is within the playable grid
     private boolean isValidPosition(int x, int y) {
         return x >= 1 && x <= SIZE && y >= 1 && y <= SIZE;
+    }
+
+    // Checks if the move is to an adjacent cell (not diagonal)
+    private boolean isAdjacentMove(int x1, int y1, int x2, int y2) {
+        return Math.abs(x2 - x1) + Math.abs(y2 - y1) == 1;
     }
 
     // Swaps two pieces, updating their positions and coordinates
@@ -168,7 +202,7 @@ public class Board {
 
     // Animates piece movement towards their target positions
     private void animateMovement() {
-        int speedSwapAnimation = 4;
+        int speedSwapAnimation = 5;
         isMoving = false;
         for (int i = 1; i <= SIZE; i++) {
             for (int j = 1; j <= SIZE; j++) {
@@ -180,14 +214,15 @@ public class Board {
                     if (dx != 0) p.x -= dx / Math.abs(dx);
                     if (dy != 0) p.y -= dy / Math.abs(dy);
                 }
-                if (dx != 0 || dy != 0) isMoving = true;
+                if (dx != 0 || dy != 0)
+                    isMoving = true;
             }
         }
     }
 
     // Processes matches, removes matched gems, and refills the board
     private int processMatches() {
-        int score= 0;
+        int score = 0;
         for (int i = 1; i <= SIZE; i++) {
             for (int j = 1; j <= SIZE; j++) {
                 score += grid[i][j].match;
@@ -196,13 +231,14 @@ public class Board {
 
         if (isSwap && !isMoving) {
             if (score == 0) {
+                // Invalid move, swap back
                 swap(grid[y0][x0], grid[y][x]);
             }
             isSwap = false;
         }
 
-        if (!isMoving) {
-            Random rand = new Random();
+        if (!isMoving && score > 0) {
+            // Move gems down to fill gaps
             for (int i = SIZE; i > 0; i--) {
                 for (int j = 1; j <= SIZE; j++) {
                     if (grid[i][j].match != 0) {
@@ -216,6 +252,7 @@ public class Board {
                 }
             }
 
+            // Generate new gems for matched ones
             for (int j = 1; j <= SIZE; j++) {
                 for (int i = SIZE, n = 0; i > 0; i--) {
                     if (grid[i][j].match != 0) {
@@ -239,16 +276,16 @@ public class Board {
                             assets.getGems().getSubimage(p.getKind() * 49, 0, 49, 49),
                             p.x + (OFFSET_X - TILE_SIZE),
                             p.y + (OFFSET_Y - TILE_SIZE),
-                            49,
-                            49,
+                            50,
+                            50,
                             null
                     );
 
                     if (click == 1 && x0 == j && y0 == i) {
                         g2.drawImage(
                                 assets.getCursor(),
-                                p.x + (OFFSET_X - TILE_SIZE),
-                                p.y + (OFFSET_Y - TILE_SIZE),
+                                p.x + (OFFSET_X - TILE_SIZE-2),
+                                p.y + (OFFSET_Y - TILE_SIZE+4),
                                 assets.getCursor().getWidth(),
                                 assets.getCursor().getHeight(),
                                 null

@@ -6,9 +6,10 @@ public class Piece {
     private int kind; // Gem type (0 to GEM_TYPES-1)
     int match; // Number of matches this gem is part of
 
-    // Constructor initializes match to 0
+    // Constructor initializes match to 0 and kind to -1 (invalid)
     public Piece() {
         this.match = 0;
+        this.kind = -1; // Initialize to invalid kind
     }
 
     // Getters and setters with validation
@@ -33,6 +34,9 @@ public class Piece {
     }
 
     public void setRow(int row) {
+        if (row < 0) {
+            throw new IllegalArgumentException("Row cannot be negative: " + row);
+        }
         this.row = row;
     }
 
@@ -41,6 +45,9 @@ public class Piece {
     }
 
     public void setCol(int col) {
+        if (col < 0) {
+            throw new IllegalArgumentException("Column cannot be negative: " + col);
+        }
         this.col = col;
     }
 
@@ -49,7 +56,7 @@ public class Piece {
     }
 
     public void setKind(int kind) {
-        if (kind < 0 || kind >= 7) { // Assuming GEM_TYPES = 7 from Board.java
+        if (kind < -1 || kind >= 7) { // Allow -1 for invalid/border pieces
             throw new IllegalArgumentException("Invalid gem type: " + kind);
         }
         this.kind = kind;
