@@ -221,11 +221,32 @@ public class Board {
     }
 
     // Processes matches, removes matched gems, and refills the board
+    // Updated processMatches() method in Board.java
     private int processMatches() {
         int score = 0;
+        // Create a set to track which gems have already been scored to avoid double counting
+        boolean[][] scored = new boolean[SIZE + 2][SIZE + 2];
+
+        // Calculate score for each unique match
         for (int i = 1; i <= SIZE; i++) {
             for (int j = 1; j <= SIZE; j++) {
-                score += grid[i][j].match;
+                if (grid[i][j].match > 0 && !scored[i][j]) {
+                    int matchLength = grid[i][j].match;
+
+                    // Base score: 100 points for 3-gem match
+                    int matchScore = 10;
+
+                    // Add 10% bonus for each gem beyond 3
+                    if (matchLength > 3) {
+                        double bonusMultiplier = 1.0 + (matchLength - 3) * 0.1;
+                        matchScore = (int)(matchScore * bonusMultiplier);
+                    }
+
+                    score += matchScore;
+
+                    // Mark all gems in this match as scored
+                    markMatchAsScored(i, j, matchLength, scored);
+                }
             }
         }
 
@@ -264,6 +285,37 @@ public class Board {
             }
         }
         return score;
+    }
+
+    // Helper method to mark all gems in a match as scored
+    private void markMatchAsScored(int startRow, int startCol, int matchLength, boolean[][] scored) {
+        // Check if this is a horizontal match
+        boolean isHorizontalMatch = false;
+        if (startCol + matchLength - 1 <= SIZE) {
+            isHorizontalMatch = true;
+            for (int k = 1; k < matchLength; k++) {
+                if (startCol + k > SIZE || grid[startRow][startCol + k].match != matchLength) {
+                    isHorizontalMatch = false;
+                    break;
+                }
+            }
+        }
+
+        if (isHorizontalMatch) {
+            // Mark horizontal match
+            for (int k = 0; k < matchLength; k++) {
+                if (startCol + k <= SIZE) {
+                    scored[startRow][startCol + k] = true;
+                }
+            }
+        } else {
+            // Must be vertical match
+            for (int k = 0; k < matchLength; k++) {
+                if (startRow + k <= SIZE) {
+                    scored[startRow + k][startCol] = true;
+                }
+            }
+        }
     }
 
     // Draws the board and gems to the provided Graphics2D context
