@@ -220,8 +220,7 @@ public class Board {
         }
     }
 
-    // Processes matches, removes matched gems, and refills the board
-    // Updated processMatches() method in Board.java
+    // Processes matches, removes matched gems, and refills the board,calculate score
     private int processMatches() {
         int score = 0;
         // Create a set to track which gems have already been scored to avoid double counting
@@ -241,7 +240,6 @@ public class Board {
                         double bonusMultiplier = 1.0 + (matchLength - 3) * 0.1;
                         matchScore = (int)(matchScore * bonusMultiplier);
                     }
-
                     score += matchScore;
 
                     // Mark all gems in this match as scored
